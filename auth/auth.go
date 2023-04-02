@@ -70,14 +70,13 @@ const (
 //
 // Example:
 //
-//     a := spotifyauth.New(redirectURL, spotify.ScopeUserLibraryRead, spotify.ScopeUserFollowRead)
-//     // direct user to Spotify to log in
-//     http.Redirect(w, r, a.AuthURL("state-string"), http.StatusFound)
+//	a := spotifyauth.New(redirectURL, spotify.ScopeUserLibraryRead, spotify.ScopeUserFollowRead)
+//	// direct user to Spotify to log in
+//	http.Redirect(w, r, a.AuthURL("state-string"), http.StatusFound)
 //
-//     // then, in redirect handler:
-//     token, err := a.Token(state, r)
-//     client := a.Client(token)
-//
+//	// then, in redirect handler:
+//	token, err := a.Token(state, r)
+//	client := a.Client(token)
 type Authenticator struct {
 	config *oauth2.Config
 }
@@ -168,6 +167,13 @@ func (a Authenticator) Token(ctx context.Context, state string, r *http.Request,
 	if actualState != state {
 		return nil, errors.New("spotify: redirect state parameter doesn't match")
 	}
+	return a.config.Exchange(ctx, code, opts...)
+}
+
+// TokeWithCode attemps to exchange an authorization code from the given code.
+// It does the same thing with Token function but without pulling code from the
+// HTTP request.
+func (a Authenticator) TokenWithCode(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
 	return a.config.Exchange(ctx, code, opts...)
 }
 
